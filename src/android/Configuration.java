@@ -56,6 +56,18 @@ public class Configuration {
         return config.optBoolean("audioOnly");
     }
 
+    public String firstFrameSymbol() {
+        return this.config.optString("firstFrameSymbol");
+    }
+
+    public boolean visible() {
+        return config.optBoolean("visible", true);
+    }
+    
+    public boolean animate() {
+        return config.optBoolean("animate", true);
+    }
+
     public boolean autoPlay() {
         return config.optBoolean("autoPlay", true);
     }

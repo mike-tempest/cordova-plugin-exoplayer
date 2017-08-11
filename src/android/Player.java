@@ -195,7 +195,9 @@ public class Player {
     public void createDialog() {
         dialog = new Dialog(this.activity, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         dialog.setOnKeyListener(onKeyListener);
-        dialog.getWindow().getAttributes().windowAnimations = android.R.style.Animation_Dialog;
+        if (config.animate()) {
+            dialog.getWindow().getAttributes().windowAnimations = android.R.style.Animation_Dialog;
+        }
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         View decorView = dialog.getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -214,7 +216,9 @@ public class Player {
 
         mainLayout.addView(exoView);
         dialog.setContentView(mainLayout);
-        dialog.show();
+        if (config.visible()) {
+            dialog.show();
+        }
 
         dialog.getWindow().setAttributes(LayoutProvider.getDialogLayoutParams(activity, config, dialog));
         exoView.requestFocus();
@@ -319,6 +323,10 @@ public class Player {
             // Assume it's srt.
             return MimeTypes.APPLICATION_SUBRIP;
         }
+    }
+
+    public void showPlayer() {
+        dialog.show();
     }
 
     public void close() {

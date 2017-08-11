@@ -33,6 +33,9 @@ import com.google.android.exoplayer2.ui.*;
 import java.lang.*;
 import java.lang.String;
 import org.json.*;
+
+import com.googleScreenApp.*;
+import com.googleScreenApp.R;
 import com.squareup.picasso.*;
 
 public class LayoutProvider {
@@ -46,7 +49,7 @@ public class LayoutProvider {
 
         return view;
     }
-
+    
     public static SimpleExoPlayerView getExoPlayer(Activity activity, Configuration config) {
         SimpleExoPlayerView view = new SimpleExoPlayerView(activity);
         view.setLayoutParams(new LinearLayout.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT));
@@ -58,6 +61,12 @@ public class LayoutProvider {
         view.setShowMultiWindowTimeBar(true);
         view.setControllerHideOnTouch(true);
         view.setControllerShowTimeoutMs(config.getHideTimeout());
+
+        if (config.firstFrameSymbol().length() > 0) {
+            View shutterView = findView(view, activity, "exo_shutter");
+            int imageResource = view.getResources().getIdentifier(config.firstFrameSymbol(), null, activity.getPackageName());
+            shutterView.setBackground(view.getContext().getDrawable(imageResource));
+        }
 
         setupController(view, activity, config.getController());
         return view;
