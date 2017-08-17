@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.trackselection.*;
 import com.google.android.exoplayer2.ui.*;
 import com.google.android.exoplayer2.upstream.*;
 import com.google.android.exoplayer2.util.*;
+import com.google.android.exoplayer2.Player.EventListener;
 import com.squareup.picasso.*;
 import java.lang.*;
 import java.lang.Math;
@@ -69,10 +70,16 @@ public class Player {
         this.audioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
     }
 
-    private ExoPlayer.EventListener playerEventListener = new ExoPlayer.EventListener() {
+    private EventListener playerEventListener = new EventListener() {
+        int oldState;
         @Override
         public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
             Log.i(TAG, "Playback parameters changed");
+        }
+
+        @Override
+        public void onRepeatModeChanged(int repeatMode) {
+            Log.i(TAG, "Repeat mode changed");
         }
 
         @Override
@@ -89,8 +96,11 @@ public class Player {
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-            JSONObject payload = Payload.stateEvent(Player.this.exoPlayer, playbackState, Player.this.controllerVisibility == View.VISIBLE);
-            new CallbackResponse(Player.this.callbackContext).send(PluginResult.Status.OK, payload, true);
+            if ((playbackState == 3 || playbackState == 4) && oldState != playbackState) {
+                JSONObject payload = Payload.stateEvent(Player.this.exoPlayer, playbackState, Player.this.controllerVisibility == View.VISIBLE);
+                new CallbackResponse(Player.this.callbackContext).send(PluginResult.Status.OK, payload, true);
+            }
+            oldState = playbackState;
         }
 
         @Override
@@ -304,7 +314,7 @@ public class Player {
             Uri subtitleUri = Uri.parse(subtitleUrl);
             String subtitleType = inferSubtitleType(subtitleUri);
             Log.i(TAG, "Subtitle present: " + subtitleUri + ", type=" + subtitleType);
-            Format textFormat = Format.createTextSampleFormat(null, subtitleType, null, Format.NO_VALUE, Format.NO_VALUE, "en", null);
+            Format textFormat = Format.createTextSampleFormat(null, subtitleType, Format.NO_VALUE, "en");
             MediaSource subtitleSource = new SingleSampleMediaSource(subtitleUri, httpDataSourceFactory, textFormat, C.TIME_UNSET);
             return new MergingMediaSource(mediaSource, subtitleSource);
         }
